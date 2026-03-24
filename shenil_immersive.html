@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shenil Surani — Systems Architect</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=Syne+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#050708;
+  --surface:#0c0f12;
+  --border:#1a1f26;
+  --accent:#00ff88;
+  --accent2:#ff4d00;
+  --accent3:#0099ff;
+  --text:#e8edf2;
+  --muted:#4a5568;
+  --glow: 0 0 20px rgba(0,255,136,0.3);
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Space Mono',monospace;overflow-x:hidden;cursor:none;}
+
+/* CURSOR */
+#cur{position:fixed;width:6px;height:6px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform 0.05s;}
+#cur-ring{position:fixed;width:32px;height:32px;border:1px solid var(--accent);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:0.4;transition:all 0.12s ease;}
+body:has(a:hover) #cur-ring{transform:translate(-50%,-50%) scale(2);opacity:0.2;}
+
+/* CANVAS */
+#canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* PROGRESS */
+#prog{position:fixed;top:0;left:0;height:1px;background:linear-gradient(90deg,var(--accent),var(--accent3));z-index:999;transition:width 0.1s;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.5rem 3rem;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(to bottom,rgba(5,7,8,0.95),transparent);}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:0.05em;color:var(--accent);}
+.nav-links{display:flex;gap:2.5rem;}
+.nav-links a{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color 0.2s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--accent);transition:width 0.3s;}
+.nav-links a:hover{color:var(--accent);}
+.nav-links a:hover::after{width:100%;}
+
+/* SECTION BASE */
+section{position:relative;z-index:1;}
+
+/* ── HERO ── */
+#hero{height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,255,136,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.03) 1px,transparent 1px);background-size:60px 60px;animation:gridPulse 8s ease infinite;}
+@keyframes gridPulse{0%,100%{opacity:0.5;}50%{opacity:1;}}
+
+.hero-content{text-align:center;position:relative;z-index:2;}
+.hero-tag{font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase;color:var(--accent);margin-bottom:2rem;opacity:0;animation:fadeUp 0.8s ease forwards 0.3s;}
+.hero-tag span{display:inline-block;width:30px;height:1px;background:var(--accent);margin:0 1rem;vertical-align:middle;}
+.hero-name{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(4rem,10vw,9rem);line-height:0.9;letter-spacing:-0.02em;opacity:0;animation:fadeUp 1s ease forwards 0.5s;}
+.hero-name .line1{display:block;color:var(--text);}
+.hero-name .line2{display:block;color:transparent;-webkit-text-stroke:1px var(--accent);position:relative;}
+.hero-role{font-size:clamp(0.7rem,1.5vw,1rem);letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);margin-top:2.5rem;opacity:0;animation:fadeUp 1s ease forwards 0.9s;}
+.hero-stats-row{display:flex;gap:4rem;justify-content:center;margin-top:4rem;opacity:0;animation:fadeUp 1s ease forwards 1.2s;}
+.hstat{text-align:center;}
+.hstat-num{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;color:var(--accent);line-height:1;}
+.hstat-label{font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-top:0.4rem;}
+.scroll-cue{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0.5rem;opacity:0;animation:fadeUp 1s ease forwards 1.8s;}
+.scroll-cue span{font-size:0.55rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);}
+.scroll-line{width:1px;height:60px;background:linear-gradient(to bottom,var(--accent),transparent);animation:scrollAnim 1.5s ease infinite;}
+@keyframes scrollAnim{0%{transform:scaleY(0);transform-origin:top;}50%{transform:scaleY(1);transform-origin:top;}51%{transform:scaleY(1);transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;}}
+
+/* ── ABOUT ── */
+#about{padding:10rem 8vw;display:grid;grid-template-columns:1fr 1fr;gap:8rem;align-items:center;}
+.about-left{}
+.section-label{font-size:0.58rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;}
+.section-label::before{content:'';display:inline-block;width:24px;height:1px;background:var(--accent);}
+.about-heading{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.5rem,4vw,4.5rem);line-height:1.05;letter-spacing:-0.02em;}
+.about-heading em{font-style:normal;color:var(--accent);}
+.about-body{margin-top:2rem;font-size:0.85rem;line-height:2;color:#8a9ab5;font-family:'Space Mono',monospace;}
+.about-right{}
+.terminal{background:var(--surface);border:1px solid var(--border);padding:2rem;position:relative;overflow:hidden;}
+.terminal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent3));}
+.term-bar{display:flex;gap:0.5rem;margin-bottom:1.5rem;}
+.term-dot{width:10px;height:10px;border-radius:50%;}
+.term-dot:nth-child(1){background:#ff5f57;}
+.term-dot:nth-child(2){background:#febc2e;}
+.term-dot:nth-child(3){background:#28c840;}
+.term-line{font-size:0.75rem;line-height:2;color:#4a9eff;}
+.term-line .prompt{color:var(--accent);}
+.term-line .output{color:#8a9ab5;}
+.term-line .highlight{color:var(--text);}
+.term-cursor{display:inline-block;width:8px;height:14px;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:middle;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* ── NUMBERS ── */
+#numbers{padding:6rem 8vw;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.numbers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);}
+.num-card{background:var(--bg);padding:3rem 2rem;text-align:center;position:relative;overflow:hidden;transition:background 0.3s;}
+.num-card:hover{background:var(--surface);}
+.num-card::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:var(--accent);transform:scaleX(0);transition:transform 0.4s ease;}
+.num-card:hover::after{transform:scaleX(1);}
+.num-val{font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;color:var(--accent);line-height:1;counter-increment:none;}
+.num-label{font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-top:0.75rem;}
+
+/* ── PROJECTS ── */
+#projects{padding:8rem 8vw;}
+.proj-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:5rem;}
+.proj-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.5rem,4vw,4rem);line-height:1;}
+.proj-count{font-size:0.6rem;letter-spacing:0.2em;color:var(--muted);}
+
+.projects-list{display:flex;flex-direction:column;gap:1px;background:var(--border);}
+.proj-item{background:var(--bg);display:grid;grid-template-columns:80px 1fr auto;gap:3rem;align-items:center;padding:2.5rem 3rem;transition:background 0.3s;cursor:pointer;position:relative;overflow:hidden;}
+.proj-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,rgba(0,255,136,0.05),transparent);transition:width 0.4s;}
+.proj-item:hover::before{width:100%;}
+.proj-item:hover{background:var(--surface);}
+.proj-num{font-family:'Syne Mono',monospace;font-size:0.7rem;color:var(--muted);}
+.proj-info{}
+.proj-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1.4rem;letter-spacing:-0.01em;margin-bottom:0.5rem;}
+.proj-desc{font-size:0.75rem;line-height:1.8;color:#6b7a8d;max-width:600px;}
+.proj-tags{display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap;}
+.proj-tag{font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.25rem 0.7rem;border:1px solid var(--border);color:var(--muted);}
+.proj-arrow{font-size:1.5rem;color:var(--muted);transition:all 0.3s;opacity:0;}
+.proj-item:hover .proj-arrow{color:var(--accent);opacity:1;transform:translateX(4px);}
+.proj-item.featured{border-left:2px solid var(--accent);}
+
+/* Project detail expand */
+.proj-detail{background:var(--surface);border-top:1px solid var(--border);max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(.4,0,.2,1);}
+.proj-detail.open{max-height:400px;}
+.proj-detail-inner{padding:2rem 3rem 2rem calc(3rem + 80px + 3rem);}
+.proj-metrics{display:flex;gap:3rem;margin-bottom:1.5rem;}
+.proj-metric{text-align:left;}
+.pm-val{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:var(--accent);}
+.pm-label{font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-top:0.2rem;}
+.proj-tech{display:flex;gap:0.75rem;flex-wrap:wrap;}
+.proj-tech span{font-size:0.65rem;font-family:'Syne Mono',monospace;color:var(--accent3);padding:0.3rem 0.75rem;background:rgba(0,153,255,0.08);border:1px solid rgba(0,153,255,0.2);}
+
+/* ── EXPERIENCE ── */
+#experience{padding:8rem 8vw;background:var(--surface);position:relative;overflow:hidden;}
+#experience::before{content:'SYSTEMS';position:absolute;font-family:'Syne',sans-serif;font-weight:800;font-size:20vw;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,0.02);right:-2vw;top:50%;transform:translateY(-50%);pointer-events:none;}
+
+.exp-grid{display:grid;grid-template-columns:300px 1fr;gap:6rem;margin-top:4rem;}
+.exp-nav{display:flex;flex-direction:column;gap:0;border-left:1px solid var(--border);}
+.exp-nav-item{padding:1.25rem 1.5rem;font-size:0.75rem;cursor:pointer;transition:all 0.2s;border-left:2px solid transparent;color:var(--muted);margin-left:-1px;}
+.exp-nav-item:hover,.exp-nav-item.active{color:var(--text);border-left-color:var(--accent);background:rgba(0,255,136,0.04);}
+.exp-nav-item .exp-co{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:inherit;display:block;margin-bottom:0.25rem;}
+.exp-nav-item .exp-period{font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;}
+
+.exp-panels{}
+.exp-panel{display:none;}
+.exp-panel.active{display:block;}
+.exp-panel-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:700;margin-bottom:0.5rem;}
+.exp-panel-meta{font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:2rem;}
+.exp-bullets{display:flex;flex-direction:column;gap:1rem;}
+.exp-bullet{display:flex;gap:1rem;font-size:0.8rem;line-height:1.8;color:#7a8a9a;}
+.exp-bullet::before{content:'›';color:var(--accent);flex-shrink:0;font-size:1rem;line-height:1.6;}
+.exp-bullet strong{color:var(--text);font-weight:400;}
+
+/* ── SKILLS ── */
+#skills{padding:8rem 8vw;}
+.skills-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.5rem,4vw,4rem);margin-bottom:4rem;}
+.skills-categories{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);}
+.skill-cat{background:var(--bg);padding:2.5rem;transition:background 0.3s;}
+.skill-cat:hover{background:var(--surface);}
+.skill-cat-name{font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;}
+.skill-items{display:flex;flex-direction:column;gap:0.75rem;}
+.skill-item{display:flex;flex-direction:column;gap:0.3rem;}
+.skill-item-name{font-size:0.78rem;color:var(--text);}
+.skill-bar{height:2px;background:var(--border);position:relative;overflow:hidden;}
+.skill-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+
+/* ── CONTACT ── */
+#contact{padding:10rem 8vw;text-align:center;position:relative;overflow:hidden;}
+#contact::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 100%,rgba(0,255,136,0.06),transparent);}
+.contact-label{font-size:0.6rem;letter-spacing:0.35em;text-transform:uppercase;color:var(--accent);margin-bottom:2rem;}
+.contact-heading{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(3rem,7vw,7rem);line-height:0.95;letter-spacing:-0.03em;margin-bottom:3rem;}
+.contact-heading span{display:block;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,0.15);}
+.contact-links{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-top:4rem;}
+.contact-link{display:flex;align-items:center;gap:0.75rem;padding:1rem 2rem;border:1px solid var(--border);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:all 0.3s;position:relative;overflow:hidden;}
+.contact-link::before{content:'';position:absolute;inset:0;background:var(--accent);transform:translateY(100%);transition:transform 0.3s ease;}
+.contact-link:hover{color:var(--bg);}
+.contact-link:hover::before{transform:translateY(0);}
+.contact-link span{position:relative;z-index:1;}
+
+/* FOOTER */
+footer{padding:2rem 8vw;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+footer span{font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:none;}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.8s ease,transform 0.8s ease;}
+.reveal.visible{opacity:1;transform:none;}
+
+/* Glitch text */
+.glitch{position:relative;}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;opacity:0.8;}
+.glitch::before{color:var(--accent2);clip-path:polygon(0 0,100% 0,100% 40%,0 40%);animation:glitch1 4s infinite;}
+.glitch::after{color:var(--accent3);clip-path:polygon(0 60%,100% 60%,100% 100%,0 100%);animation:glitch2 4s infinite 0.15s;}
+@keyframes glitch1{0%,90%,100%{transform:none;opacity:0;}92%{transform:translate(-2px,0);opacity:0.8;}95%{transform:translate(2px,0);opacity:0.8;}98%{transform:translate(-1px,0);opacity:0.8;}}
+@keyframes glitch2{0%,88%,100%{transform:none;opacity:0;}90%{transform:translate(2px,0);opacity:0.8;}93%{transform:translate(-2px,0);opacity:0.8;}97%{transform:translate(1px,0);opacity:0.8;}}
+
+/* Loading screen */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2rem;transition:opacity 0.8s ease,visibility 0.8s ease;}
+#loader.hidden{opacity:0;visibility:hidden;}
+.loader-name{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--text);letter-spacing:0.1em;}
+.loader-bar{width:200px;height:1px;background:var(--border);position:relative;overflow:hidden;}
+.loader-bar-fill{height:100%;width:0%;background:var(--accent);animation:loaderAnim 1.5s ease forwards 0.3s;}
+@keyframes loaderAnim{to{width:100%;}}
+.loader-status{font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted);}
+
+/* Mobile */
+@media(max-width:768px){
+  nav{padding:1.5rem 2rem;}
+  .nav-links{display:none;}
+  #about{grid-template-columns:1fr;padding:6rem 2rem;}
+  .numbers-grid{grid-template-columns:repeat(2,1fr);}
+  #projects{padding:6rem 2rem;}
+  .proj-item{grid-template-columns:50px 1fr;gap:1.5rem;padding:1.5rem 2rem;}
+  .proj-arrow{display:none;}
+  .exp-grid{grid-template-columns:1fr;gap:3rem;}
+  .skills-categories{grid-template-columns:1fr;}
+  #experience,#skills,#contact{padding:6rem 2rem;}
+  .hero-stats-row{gap:2rem;}
+  .proj-detail-inner{padding:1.5rem 2rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-name">SS</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  <div class="loader-status">Initialising systems<span id="loaderDots"></span></div>
+</div>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<div id="prog"></div>
+<canvas id="canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">SS_</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#projects">Projects</a>
+    <a href="#experience">Experience</a>
+    <a href="#skills">Skills</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <p class="hero-tag"><span></span>Marketing Operations & Systems<span></span></p>
+    <h1 class="hero-name glitch" data-text="SHENIL">
+      <span class="line1">SHENIL</span>
+      <span class="line2">SURANI</span>
+    </h1>
+    <p class="hero-role">CRM Architect · Automation Engineer · Revenue Systems</p>
+    <div class="hero-stats-row">
+      <div class="hstat">
+        <div class="hstat-num">143K+</div>
+        <div class="hstat-label">CRM Records</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">250+</div>
+        <div class="hstat-label">Automations Built</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">3K+</div>
+        <div class="hstat-label">Leads / Month</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">1yr</div>
+        <div class="hstat-label">At Reelo</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-left reveal">
+    <div class="section-label">Who I Am</div>
+    <h2 class="about-heading">Not just a<br/><em>HubSpot guy.</em></h2>
+    <p class="about-body">
+      I'm Shenil — a Marketing Operations specialist who builds the invisible systems that make revenue predictable and pipelines honest.<br/><br/>
+      I came in knowing nothing about HubSpot. One year later, I own the entire CRM infrastructure, 250+ automations, and revenue dashboards that leadership actually uses to make decisions.<br/><br/>
+      I don't just run tools. I design how they should work together.
+    </p>
+  </div>
+  <div class="about-right reveal">
+    <div class="terminal">
+      <div class="term-bar">
+        <div class="term-dot"></div>
+        <div class="term-dot"></div>
+        <div class="term-dot"></div>
+      </div>
+      <div class="term-line"><span class="prompt">$ </span><span class="highlight">shenil --status</span></div>
+      <div class="term-line"><span class="output">→ Role: Marketing Operations Specialist</span></div>
+      <div class="term-line"><span class="output">→ Company: Reelo (SaaS · F&B Tech)</span></div>
+      <div class="term-line"><span class="output">→ Location: Ahmedabad, Gujarat</span></div>
+      <div class="term-line">&nbsp;</div>
+      <div class="term-line"><span class="prompt">$ </span><span class="highlight">shenil --stack</span></div>
+      <div class="term-line"><span class="output">→ HubSpot [EXPERT] ████████████ 98%</span></div>
+      <div class="term-line"><span class="output">→ n8n / APIs [ADV] ████████░░░░ 78%</span></div>
+      <div class="term-line"><span class="output">→ Power BI [ADV] ████████░░░░ 82%</span></div>
+      <div class="term-line"><span class="output">→ SQL [BASIC] ████░░░░░░░░ 40%</span></div>
+      <div class="term-line">&nbsp;</div>
+      <div class="term-line"><span class="prompt">$ </span><span class="highlight">shenil --vibe</span></div>
+      <div class="term-line"><span class="output">→ Real Madrid fan. Late nights. Systems builder.</span></div>
+      <div class="term-line"><span class="output">→ Finishes tasks before 1:30 AM kickoffs ⚽</span></div>
+      <div class="term-line"><span class="prompt">$ </span><span class="term-cursor"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS -->
+<section id="numbers">
+  <div class="numbers-grid">
+    <div class="num-card reveal">
+      <div class="num-val" data-target="143000">0</div>
+      <div class="num-label">CRM Records Governed</div>
+    </div>
+    <div class="num-card reveal">
+      <div class="num-val" data-target="250">0</div>
+      <div class="num-label">Automations & Integrations</div>
+    </div>
+    <div class="num-card reveal">
+      <div class="num-val" data-target="3000">0</div>
+      <div class="num-label">Monthly Leads Managed</div>
+    </div>
+    <div class="num-card reveal">
+      <div class="num-val" data-target="9">0</div>
+      <div class="num-label">Webinars in 15 Days</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="proj-header reveal">
+    <div>
+      <div class="section-label">Selected Work</div>
+      <h2 class="proj-title">Projects<br/>I've Built</h2>
+    </div>
+    <div class="proj-count">05 Projects</div>
+  </div>
+
+  <div class="projects-list reveal">
+
+    <!-- 01 Membership Generator -->
+    <div class="proj-item featured" onclick="toggleProject(this)">
+      <div class="proj-num">01</div>
+      <div class="proj-info">
+        <div class="proj-name">Reelo Membership Generator</div>
+        <div class="proj-desc">AI-powered membership plan engine. A brand searches their restaurant on the landing page, a webhook fires to fetch live menu data via Zomato in real-time, passes it through a structured LLM prompt framework, and dynamically generates optimised loyalty membership plans — all surfaced on the page instantly. Built as a high-conversion lead magnet for Reelo's inbound.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">n8n</span>
+          <span class="proj-tag">Zomato API</span>
+          <span class="proj-tag">LLM</span>
+          <span class="proj-tag">Webhook</span>
+          <span class="proj-tag">HubSpot CRM</span>
+        </div>
+      </div>
+      <div class="proj-arrow">→</div>
+    </div>
+    <div class="proj-detail">
+      <div class="proj-detail-inner">
+        <div class="proj-metrics">
+          <div class="proj-metric"><div class="pm-val">Live</div><div class="pm-label">Production Status</div></div>
+          <div class="proj-metric"><div class="pm-val">100%</div><div class="pm-label">Automated</div></div>
+          <div class="proj-metric"><div class="pm-val">0</div><div class="pm-label">Manual Steps</div></div>
+        </div>
+        <div class="proj-tech">
+          <span>Real-time Zomato Scraping</span>
+          <span>LLM Prompt Engineering</span>
+          <span>Dynamic Page Rendering</span>
+          <span>CRM Lead Capture</span>
+          <span><a href="https://staging-bbd2-reeloio.wpcomstaging.com/create-membership/" target="_blank" style="color:var(--accent3);text-decoration:none;">↗ View Live</a></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 FnB Scraper -->
+    <div class="proj-item" onclick="toggleProject(this)">
+      <div class="proj-num">02</div>
+      <div class="proj-info">
+        <div class="proj-name">F&B Mixer Scraper</div>
+        <div class="proj-desc">Every quarter, Reelo hosts enterprise mixers for F&B brands. Previously, interns manually extracted brand data for outreach — hours of work per cycle. I built an automated scraper that pulls targeted F&B brand data, decision-maker contacts, and enriched company details. Zero manpower. Full dataset ready for sales in minutes.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Web Scraping</span>
+          <span class="proj-tag">Automation</span>
+          <span class="proj-tag">Data Enrichment</span>
+          <span class="proj-tag">CRM Sync</span>
+        </div>
+      </div>
+      <div class="proj-arrow">→</div>
+    </div>
+    <div class="proj-detail">
+      <div class="proj-detail-inner">
+        <div class="proj-metrics">
+          <div class="proj-metric"><div class="pm-val">0</div><div class="pm-label">Manpower Required</div></div>
+          <div class="proj-metric"><div class="pm-val">Hrs→Min</div><div class="pm-label">Time Saved</div></div>
+        </div>
+        <div class="proj-tech">
+          <span>Automated Data Extraction</span>
+          <span>Brand & POC Identification</span>
+          <span>CRM-Ready Export</span>
+          <span>Quarterly Batch Processing</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 Reelo Dashboard -->
+    <div class="proj-item" onclick="toggleProject(this)">
+      <div class="proj-num">03</div>
+      <div class="proj-info">
+        <div class="proj-name">Reelo Marketing Intelligence Dashboard</div>
+        <div class="proj-desc">A live marketing performance command centre tracking the full funnel — from Spend to Leads, SQLs, and Conversions. Built for leadership to make real decisions based on real numbers. No guesswork. Integrates data across CRM, outbound tools, and campaign systems into one clean view.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">Revenue Attribution</span>
+          <span class="proj-tag">CRM Reporting</span>
+          <span class="proj-tag">Multi-source Data</span>
+          <span class="proj-tag">Leadership Dashboards</span>
+        </div>
+      </div>
+      <div class="proj-arrow">→</div>
+    </div>
+    <div class="proj-detail">
+      <div class="proj-detail-inner">
+        <div class="proj-metrics">
+          <div class="proj-metric"><div class="pm-val">Live</div><div class="pm-label">Real-time Data</div></div>
+          <div class="proj-metric"><div class="pm-val">Full Funnel</div><div class="pm-label">Spend → Revenue</div></div>
+        </div>
+        <div class="proj-tech">
+          <span>Spend → Lead → SQL → Conversion</span>
+          <span>Multi-channel Attribution</span>
+          <span>Pipeline Health Metrics</span>
+          <span><a href="https://45f0f4e1.reelosmarketingreport.pages.dev/" target="_blank" style="color:var(--accent3);text-decoration:none;">↗ View Dashboard</a></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 HubSpot CRM -->
+    <div class="proj-item featured" onclick="toggleProject(this)">
+      <div class="proj-num">04</div>
+      <div class="proj-info">
+        <div class="proj-name">HubSpot Enterprise CRM — 250+ Automations</div>
+        <div class="proj-desc">Built from scratch. Enterprise-grade pipeline architecture across Contacts, Companies, and Deals. Custom lead scoring, lifecycle routing, WhatsApp (Gupshup) API integration, automated task management with 15-minute pre-activity alerts, DND workflows, custom-code automations, and CRM governance for 143K+ records. The backbone of Reelo's entire sales motion.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">HubSpot</span>
+          <span class="proj-tag">Custom Code</span>
+          <span class="proj-tag">Lead Scoring</span>
+          <span class="proj-tag">Gupshup API</span>
+          <span class="proj-tag">n8n</span>
+        </div>
+      </div>
+      <div class="proj-arrow">→</div>
+    </div>
+    <div class="proj-detail">
+      <div class="proj-detail-inner">
+        <div class="proj-metrics">
+          <div class="proj-metric"><div class="pm-val">250+</div><div class="pm-label">Active Workflows</div></div>
+          <div class="proj-metric"><div class="pm-val">143K+</div><div class="pm-label">Records Governed</div></div>
+          <div class="proj-metric"><div class="pm-val">0→Built</div><div class="pm-label">From Scratch</div></div>
+        </div>
+        <div class="proj-tech">
+          <span>Enterprise Pipeline Design</span>
+          <span>Cross-object Automation</span>
+          <span>WhatsApp ↔ CRM Sync</span>
+          <span>Custom Code Workflows</span>
+          <span>DND Logic</span>
+          <span>Sales Enablement Automation</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 05 n8n / base44 -->
+    <div class="proj-item" onclick="toggleProject(this)">
+      <div class="proj-num">05</div>
+      <div class="proj-info">
+        <div class="proj-name">n8n & Base44 Automation Stack</div>
+        <div class="proj-desc">Custom automation workflows built on n8n and Base44 — connecting external systems, handling data transformations, and orchestrating multi-step processes that HubSpot alone can't do. Includes the brand review intelligence system (Google Reviews → n8n → PDF generation → CRM-triggered email delivery to leads) and various API orchestration pipelines.</div>
+        <div class="proj-tags">
+          <span class="proj-tag">n8n</span>
+          <span class="proj-tag">Base44</span>
+          <span class="proj-tag">API Orchestration</span>
+          <span class="proj-tag">PDF Generation</span>
+          <span class="proj-tag">Webhooks</span>
+        </div>
+      </div>
+      <div class="proj-arrow">→</div>
+    </div>
+    <div class="proj-detail">
+      <div class="proj-detail-inner">
+        <div class="proj-metrics">
+          <div class="proj-metric"><div class="pm-val">Multi-sys</div><div class="pm-label">Integration Depth</div></div>
+          <div class="proj-metric"><div class="pm-val">Auto</div><div class="pm-label">PDF Delivery</div></div>
+        </div>
+        <div class="proj-tech">
+          <span>Google Reviews Analysis</span>
+          <span>AI-powered PDF Reports</span>
+          <span>CRM Email Trigger</span>
+          <span>Multi-step API Chains</span>
+          <span>Data Transformation</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-label reveal">Career</div>
+  <h2 class="reveal" style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.5rem,4vw,4rem);letter-spacing:-0.02em;">The Journey</h2>
+
+  <div class="exp-grid">
+    <div class="exp-nav">
+      <div class="exp-nav-item active" onclick="switchExp(this,'reelo')">
+        <span class="exp-co">Reelo</span>
+        <span class="exp-period">Feb 2025 – Present</span>
+      </div>
+      <div class="exp-nav-item" onclick="switchExp(this,'sensinova')">
+        <span class="exp-co">Sensinova</span>
+        <span class="exp-period">Oct 2022 – Apr 2023</span>
+      </div>
+      <div class="exp-nav-item" onclick="switchExp(this,'gsfc')">
+        <span class="exp-co">GSFC Company</span>
+        <span class="exp-period">Jan 2022 – Feb 2022</span>
+      </div>
+    </div>
+
+    <div class="exp-panels">
+      <div class="exp-panel active" id="reelo">
+        <div class="exp-panel-title">Marketing Operations Specialist</div>
+        <div class="exp-panel-meta">Reelo · Ahmedabad, India · SaaS / F&B Tech</div>
+        <div class="exp-bullets">
+          <div class="exp-bullet"><strong>Architected enterprise HubSpot</strong> from the ground up — pipeline design, lifecycle logic, cross-object automations across Contacts, Companies and Deals.</div>
+          <div class="exp-bullet"><strong>250+ active workflows</strong> ranging from standard automations to DND logic and custom-code workflows. The entire CRM is built and maintained by me.</div>
+          <div class="exp-bullet"><strong>Lead scoring & routing framework</strong> built from scratch, aligning marketing qualification with sales criteria to improve SQL reliability.</div>
+          <div class="exp-bullet"><strong>Integrated WhatsApp (Gupshup) with HubSpot</strong> via APIs and n8n — bot responses create leads in CRM in real-time.</div>
+          <div class="exp-bullet"><strong>Revenue visibility dashboards</strong> mapping Spend → Leads → SQL → Conversions — used by leadership for actual decisions.</div>
+          <div class="exp-bullet"><strong>Enterprise mixer operations</strong> end-to-end: brand research, POC sourcing, outreach, demo coordination.</div>
+          <div class="exp-bullet"><strong>9 webinars in 15 days</strong> — all CRM workflows, registrations, communications, and post-event reporting handled solo.</div>
+          <div class="exp-bullet"><strong>CRM governance</strong> for 143,000+ records — data hygiene, segmentation quality, and long-term scalability.</div>
+        </div>
+      </div>
+
+      <div class="exp-panel" id="sensinova">
+        <div class="exp-panel-title">Marketing Intern</div>
+        <div class="exp-panel-meta">Sensinova · Vadodara, India · Energy Technology</div>
+        <div class="exp-bullets">
+          <div class="exp-bullet"><strong>Built a CRM-style lead tracking system</strong> from zero using Google Sheets — no formal CRM existed. Automated lifecycle management and sales handoff.</div>
+          <div class="exp-bullet"><strong>Established Brevo email infrastructure</strong> from scratch — domain warm-up, A/B testing, deliverability optimisation for outbound campaigns.</div>
+          <div class="exp-bullet"><strong>Developed interactive ROI calculators</strong> for industry expos and the company website, demonstrating energy cost savings to drive high-intent leads.</div>
+          <div class="exp-bullet"><strong>End-to-end marketing ownership</strong> — content creation, campaign execution, lead nurturing, and automated sales assignment.</div>
+          <div class="exp-bullet"><strong>AI-powered content workflows</strong> using Canva and generative tools to produce marketing assets at scale.</div>
+        </div>
+      </div>
+
+      <div class="exp-panel" id="gsfc">
+        <div class="exp-panel-title">IT Intern</div>
+        <div class="exp-panel-meta">GSFC Company · Vadodara, India · Industrial / Manufacturing</div>
+        <div class="exp-bullets">
+          <div class="exp-bullet"><strong>Designed Power BI dashboards</strong> to visualise key operational metrics across multiple departments.</div>
+          <div class="exp-bullet"><strong>Data collection, cleaning & transformation</strong> from internal systems to ensure accuracy and usability in reporting.</div>
+          <div class="exp-bullet"><strong>Automated recurring report workflows</strong>, reducing manual effort and improving turnaround time.</div>
+          <div class="exp-bullet"><strong>Collaborated cross-functionally</strong> to translate reporting requirements into actionable dashboards.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-label reveal">Arsenal</div>
+  <h2 class="skills-title reveal">What I Work With</h2>
+  <div class="skills-categories">
+    <div class="skill-cat reveal">
+      <div class="skill-cat-name">CRM & Revenue Ops</div>
+      <div class="skill-items">
+        <div class="skill-item"><div class="skill-item-name">HubSpot Architecture</div><div class="skill-bar"><div class="skill-bar-fill" data-width="98"></div></div></div>
+        <div class="skill-item"><div class="skill-item-name">Lead Scoring & Routing</div><div class="skill-bar"><div class="skill-bar-fill" data-width="90"></div></div></div>
+        <div class="skill-item"><div class="skill-item-name">CRM Data Governance</div><div class="skill-bar"><div class="skill-bar-fill" data-width="88"></div></div></div>
+        <div class="skill-item"><div class="skill-item-name">Revenue Attribution</div><div class="skill-bar"><div class="skill-bar-fill" data-width="82"></div></div></div>
+      </div>
+    </div>
+    <div class="skill-cat reveal">
+      <div class="skill-cat-name">Automation & Engineering</div>
+      <div class="skill-items">
+        <div class="skill-item"><div class="skill-item-name">n8n Workflows</div><div class="skill-bar"><div class="skill-bar-fill" data-width="85"></div></div></div>
+        <div class="skill-item"><div class="skill-item-name">API & Webhook Integration</div><div class="skill-bar"><div class="skill-bar-fill" data-width="80"></div></div></div>
+        <div class="skill-item"><div class="skill-item-name">Custom Code Workflows</div><div class="skill-bar"><div class="skill-bar-fill" data-width="75"></div></div></div>
+        <div class="skill-item"><div class="skill-item-name">Base44 Automations</div><div class="skill-bar"><div class="skill-bar-fill" data-width="72"></div></div></div>
+      </div>
+    </div>
+    <div class="skill-cat reveal">
+      <div class="skill-cat-name">Analytics & Tools</div>
+      <div class="skill-items">
+        <div class="skill-item"><div class="skill-item-name">Power BI (Advanced)</div><div class="skill-bar"><div class="skill-bar-fill" data-width="88"></div></div></div>
+        <div class="skill-item"><div class="skill-item-name">Apollo / Saleshandy</div><div class="skill-bar"><div class="skill-bar-fill" data-width="85"></div></div></div>
+        <div class="skill-item"><div class="skill-item-name">Brevo / Gupshup</div><div class="skill-bar"><div class="skill-bar-fill" data-width="82"></div></div></div>
+        <div class="skill-item"><div class="skill-item-name">SQL (Basic)</div><div class="skill-bar"><div class="skill-bar-fill" data-width="42"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-label reveal">Let's Talk</div>
+  <h2 class="contact-heading reveal">
+    Build<br/>
+    <span>Something</span><br/>
+    Together.
+  </h2>
+  <div class="contact-links reveal">
+    <a class="contact-link" href="mailto:shenilsurani99@gmail.com"><span>✉ Email</span></a>
+    <a class="contact-link" href="https://linkedin.com/in/shenil-surani-3873571b0" target="_blank"><span>↗ LinkedIn</span></a>
+    <a class="contact-link" href="tel:+918488035392"><span>✆ Call</span></a>
+  </div>
+</section>
+
+<footer>
+  <span>Shenil Surani · 2025</span>
+  <span>Vapi, Gujarat, India</span>
+  <span>Built with systems thinking</span>
+</footer>
+
+<script>
+// ── LOADER ──
+const loader = document.getElementById('loader');
+const dots = document.getElementById('loaderDots');
+let d=0;
+const di = setInterval(()=>{dots.textContent='.'.repeat(d%4);d++;},300);
+setTimeout(()=>{clearInterval(di);loader.classList.add('hidden');},2000);
+
+// ── CURSOR ──
+const cur = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+document.addEventListener('mousemove',e=>{
+  cur.style.left=e.clientX+'px'; cur.style.top=e.clientY+'px';
+  ring.style.left=e.clientX+'px'; ring.style.top=e.clientY+'px';
+});
+
+// ── PROGRESS ──
+const prog = document.getElementById('prog');
+window.addEventListener('scroll',()=>{
+  const p=(window.scrollY/(document.documentElement.scrollHeight-window.innerHeight))*100;
+  prog.style.width=p+'%';
+});
+
+// ── CANVAS PARTICLES ──
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let W,H,particles=[];
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+class Particle{
+  constructor(){this.reset();}
+  reset(){
+    this.x=Math.random()*W;this.y=Math.random()*H;
+    this.vx=(Math.random()-0.5)*0.3;this.vy=(Math.random()-0.5)*0.3;
+    this.alpha=Math.random()*0.4+0.05;
+    this.size=Math.random()*1.5+0.5;
+    this.color=Math.random()>0.7?'0,255,136':'0,153,255';
+  }
+  update(){
+    this.x+=this.vx;this.y+=this.vy;
+    if(this.x<0||this.x>W||this.y<0||this.y>H)this.reset();
+  }
+  draw(){
+    ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${this.color},${this.alpha})`;ctx.fill();
+  }
+}
+for(let i=0;i<80;i++)particles.push(new Particle());
+// Draw connections
+function drawConnections(){
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x;
+      const dy=particles[i].y-particles[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.strokeStyle=`rgba(0,255,136,${0.06*(1-dist/120)})`;
+        ctx.lineWidth=0.5;ctx.stroke();
+      }
+    }
+  }
+}
+function animate(){
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p=>{p.update();p.draw();});
+  drawConnections();
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ── SCROLL REVEAL ──
+const revealEls = document.querySelectorAll('.reveal');
+const ro = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:0.1});
+revealEls.forEach(el=>ro.observe(el));
+
+// ── COUNTER ANIMATION ──
+function animateCounter(el,target){
+  const isLarge = target > 999;
+  const duration = 2000;
+  const start = performance.now();
+  const fmt = (n)=>{
+    if(target>=143000) return Math.round(n).toLocaleString()+'+';
+    if(target>=3000) return Math.round(n).toLocaleString()+'+';
+    if(target>=250) return Math.round(n)+'+';
+    return Math.round(n);
+  };
+  function update(now){
+    const p=Math.min((now-start)/duration,1);
+    const ease=1-Math.pow(1-p,4);
+    el.textContent=fmt(ease*target);
+    if(p<1)requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+const numObs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const el=e.target.querySelector('.num-val');
+      if(el&&!el.dataset.animated){
+        el.dataset.animated='1';
+        animateCounter(el,parseInt(el.dataset.target));
+      }
+    }
+  });
+},{threshold:0.3});
+document.querySelectorAll('.num-card').forEach(c=>numObs.observe(c));
+
+// ── SKILL BARS ──
+const skillObs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.skill-bar-fill').forEach(bar=>{
+        setTimeout(()=>{bar.style.width=bar.dataset.width+'%';},200);
+      });
+    }
+  });
+},{threshold:0.2});
+document.querySelectorAll('.skill-cat').forEach(c=>skillObs.observe(c));
+
+// ── PROJECT TOGGLE ──
+function toggleProject(item){
+  const detail=item.nextElementSibling;
+  const isOpen=detail.classList.contains('open');
+  document.querySelectorAll('.proj-detail.open').forEach(d=>{d.classList.remove('open');});
+  if(!isOpen)detail.classList.add('open');
+}
+
+// ── EXPERIENCE TABS ──
+function switchExp(el,id){
+  document.querySelectorAll('.exp-nav-item').forEach(i=>i.classList.remove('active'));
+  document.querySelectorAll('.exp-panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ── ACTIVE NAV ──
+const sections=document.querySelectorAll('section[id]');
+const navLinks=document.querySelectorAll('.nav-links a');
+const navObs=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(a=>a.classList.remove('active'));
+      const link=document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+      if(link)link.style.color='var(--accent)';
+    } else {
+      const link=document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+      if(link)link.style.color='';
+    }
+  });
+},{threshold:0.5});
+sections.forEach(s=>navObs.observe(s));
+</script>
+</body>
+</html>
